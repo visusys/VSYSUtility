@@ -11,6 +11,12 @@
 .PARAMETER GUID
     When passed, the created filename is a new GUID instead of a random alphanumeric string.
 
+.INPUTS
+None. You cannot pipe objects to New-TempDirectory.
+
+.OUTPUTS
+System.IO.FileSystemInfo. New-TempDirectory returns a DirectoryInfo object.
+
 .NOTES
     Name: New-TempDirectory
     Author: Visusys
@@ -31,23 +37,23 @@
 function New-TempDirectory {
     [CmdletBinding()]
     Param (
-
         [ValidateRange(0, 30)]
         [Parameter(Mandatory = $false)]
-        [Int32]$Length = 12,
+        [Int32]$Length = 13,
 
         [Parameter(Mandatory = $false)]
-        [Switch]$GUID
-        
+        [Switch]$GUID 
     )
 
-    $tpath = [System.IO.Path]::GetTempPath()
+    $TempPath = [System.IO.Path]::GetTempPath()
 
     if ($guid) {
-        $newguid = '{' + (New-Guid) + '}'
-        return (New-Item -ItemType Directory -Path (Join-Path $tpath $newguid))
+        $NewGUID = New-Guid
+        $Output = (New-Item -ItemType Directory -Path (Join-Path $TempPath $NewGUID))
     } else {
-        $rndname = Get-RandomAlphanumericString -Length $Length
-        return (New-Item -ItemType Directory -Path (Join-Path $tpath $rndname))
+        $RndName = Get-RandomAlphanumericString -Length $Length
+        $Output = (New-Item -ItemType Directory -Path (Join-Path $TempPath $RndName))
     }
+
+    if (Test-Path -LiteralPath $Output.FullName) { return $Output }
 }
