@@ -2,21 +2,24 @@
 
 .SYNOPSIS
 
-Returns a random string based on specified complexity, length, and exclusions. Based on the work of Ronald Bode found here: https://powersnippets.com/
+Returns a random string based on specified complexity, length, and exclusions. 
+Based on the work of Ronald Bode found here: https://powersnippets.com/
 
 .DESCRIPTION
 
 Returns a random string based on specified complexity, length, and exclusions.
 
-The Length parameter defines the length of the string. The Complexity parameter defines what character sets to include.
-
-U, L, D and S stands for Uppercase, Lowercase, Digits and Symbols. If supplied in lowercase (u, l, d, s), the returned string is allowed to contain characters from that set. If supplied in uppercase (U, L, D, S), the returned string is guranteed to contain at least one character from that set.
+The Length parameter defines the length of the string. 
+The Complexity parameter defines what character sets to include.
 
 .PARAMETER Length
 Specifies the length of the generated string.
 
 .PARAMETER Complexity
 Specifies the complexity of the string. Default is "ULDS"
+U, L, D and S stands for Uppercase, Lowercase, Digits and Symbols. 
+If supplied in lowercase (u, l, d, s), the returned string is allowed to contain characters from that set. 
+If supplied in uppercase (U, L, D, S), the returned string is guranteed to contain at least one character from that set.
 
 .PARAMETER Exclude
 Specifies individual characters to exclude from the string.

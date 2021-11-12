@@ -3,7 +3,9 @@
     Creates a new temporary directory located in the users temp path with a random filename.
 
 .DESCRIPTION
-    Creates a new temporary directory located in the users temp path with a random filename. The Length parameter specifies the length of the random filename. If the GUID switch is passed, the directory will be named with a new GUID instead of a random alphanumeric sequence.
+    Creates a new temporary directory located in the users temp path with a random filename.
+    The Length parameter specifies the length of the random filename. 
+    If the GUID switch is passed, the directory will be named with a new GUID instead of a random alphanumeric sequence.
 
 .PARAMETER Length
     The length of the random alphanumeric filename to be created.

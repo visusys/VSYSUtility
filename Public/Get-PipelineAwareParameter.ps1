@@ -3,7 +3,8 @@
     Enumerates parameters that can accept pipeline input.
 
 .DESCRIPTION
-    Get-PipelineAwareParameter is a test function that exposes parameter binding information. Specify the name of any valid command, and it returns the parameters that can accept pipeline input.
+    Get-PipelineAwareParameter is a test function that exposes parameter binding information.
+    Specify the name of any valid command, and it returns the parameters that can accept pipeline input.
 
 .PARAMETER Command
     The specific command to analyze.

@@ -3,7 +3,8 @@
     Checks if a supplied path is located in a sensitive windows directory.
 
 .DESCRIPTION
-    Checks if a supplied path is located in a sensitive windows directory. This function is used to prevent unintentional deletion or modification of data in system critical folders on Windows machines.
+    Checks if a supplied path is located in a sensitive windows directory.
+    This function is used to prevent unintentional deletion or modification of data in system critical folders on Windows machines.
 
 .PARAMETER Path
     The path to check.
