@@ -5,75 +5,110 @@
 .DESCRIPTION
     Validates whether a path is correctly formatted based on chosen parameters.
     By default, any valid path with or without a filename will succeed.
-    If the ExcludeFile switch is used, validation will fail for paths that contain a file (with an extension)
-    If RestrictExtension is set to a value, validation will only succeed for paths that contain a file with the exact extension specified by RestrictExtension.
+    If the Container switch is set, validation will fail for paths that do not point to a directory.
+    If the Leaf switch is set, validation will fail for paths that do not point to a file with a file extension.
+    If a file extension is supplied to Extension, validation will fail for paths that do not point to a file with the exact file extension specified.
+    The Leaf switch must be set in order to specify a file extension.
 
 .PARAMETER Path
     The path you would like to evaluate.
 
-.PARAMETER RestrictExtension
-    Tests whether the path points to a file with an extension specified by this value. 
+.PARAMETER Container
+    Tests whether the path points to a directory.
 
-.PARAMETER ExcludeFile
-    If set, validation will fail if the path evaluates to a filename with an extension.
+.PARAMETER Leaf
+    Tests whether the path points to a file.
+
+.PARAMETER Extension
+    Tests whether the path points to a file with the specified extension. Requires -Leaf to be specified.
 
 .NOTES
     Name: Confirm-WindowsPathIsValid
     Author: Visusys
     Version: 1.0.0
-    DateCreated: 2021-11-10
+    DateCreated: 2021-11-12
 
 .EXAMPLE
     Confirm-WindowsPathIsValid -Path "C:\Applications\Dev\"
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "C:\Test\Tools\DoSomething.exe" -ExcludeFile
+    Confirm-WindowsPathIsValid -Path "C:\Program Files\Notepad++" -Container
+    True
+
+.EXAMPLE
+    Confirm-WindowsPathIsValid -Path "C:\Program Files\PowerShell\7\pwsh.exe" -Container
     False
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "D:\Logs\01-10-2021.txt" -RestrictExtension "txt"
+    Confirm-WindowsPathIsValid -Path "C:\Music\Full Circle\Track01.mp3" -Leaf
+    True
+
+.EXAMPLE
+    Confirm-WindowsPathIsValid -Path "\\192.168.0.1\SHARE\my folder\" -Container
+    True
+
+.EXAMPLE
+    Confirm-WindowsPathIsValid -Path "\\SERVER-01\Shared1\WGroups\Log-1.txt" -Leaf
+    True
+
+.EXAMPLE
+    Confirm-WindowsPathIsValid -Path "C:\Program Files\7-Zip\7z.exe" -Leaf -Extension "exe"
+    True
+
+.EXAMPLE
+    Confirm-WindowsPathIsValid -Path "..\..\bin\my_executable.exe" -Leaf
     True
 
 .LINK
     https://github.com/visusys
 #>
 function Confirm-WindowsPathIsValid {
-    [CmdletBinding()]
     param (
-        [Parameter(Mandatory,Position = 0)]
-        [string]
+
+        [Parameter(Mandatory, ParameterSetName = 'Leaf')]
+        [Parameter(Mandatory, ParameterSetName = 'Container')]
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [System.IO.FileInfo]
         $Path,
 
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $RestrictExtension = "",
-
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory, ParameterSetName = 'Container')]
         [switch]
-        $ExcludeFile
+        $Container,
+
+        [Parameter(Mandatory, ParameterSetName = 'Leaf')]
+        [switch]
+        $Leaf,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'Leaf')]
+        [string]
+        $Extension
     )
 
-    if(($ExcludeFile) -and ($RestrictExtension -ne "")){
-        throw "You can only use RestrictExtension if testing for a file."
+    $IsValid = $Path -match '^(?:(?:[a-z]:|\\\\[a-z0-9_.$●-]+\\[a-z0-9_.$●-]+)\\|\\?[^\\\/:*?"<>|\r\n]+\\?)(?:[^\\\/:*?"<>|\r\n]+\\)*[^\\\/:*?"<>|\r\n]*$'
+    if(!$IsValid){
+        return $false
     }
 
-    if($ExcludeFile){
-        $IsValid = $Path -match '^[a-zA-Z]:\\(?:[^\\\/:*?"<>|\r\n]+\\)*[^\\\/:*?"<>|\r\n.]*$'
-        # [a-zA-Z]:\\                                   Drive
-        # (?:[^\\\/:*?"<>|\r\n]+\\)*                    Folder
-        # [^\\\/:*?"<>|\r\n.]*                          File (Dissallowed dot)
-    }elseif ($RestrictExtension -ne "") {
-        $IsValid = $Path -match '^[a-zA-Z]:\\(?:[^\\\/:*?"<>|\r\n]+\\)*[^\\\/:*?"<>|\r\n]*(?i)(\.'+$RestrictExtension+')$'
-        # [a-zA-Z]:\\                                   Drive
-        # (?:[^\\\/:*?"<>|\r\n]+\\)*                    Folder
-        # [^\\\/:*?"<>|\r\n]*(?i)(\.EXTENSION)$'        File (Restricted to specific extension)
-    }else {
-        $IsValid = $Path -match '^[a-zA-Z]:\\(?:[^\\\/:*?"<>|\r\n]+\\)*[^\\\/:*?"<>|\r\n]*$'
-        # [a-zA-Z]:\\                                   Drive
-        # (?:[^\\\/:*?"<>|\r\n]+\\)*                    Folder
-        # [^\\\/:*?"<>|\r\n.]*                          File
+    $ext        = [IO.Path]::GetExtension($Path)
+    $ext        = $ext.Replace('.','')
+    $Extension  = $Extension.Replace('.','')
+
+    if($Leaf){
+        if($ext -eq ''){
+            return $false
+        }
+    }
+    if($Extension){
+        if($ext -ne $Extension){
+            return $false
+        }
+    }
+    if($Container){
+        if($ext -ne ''){
+            return $false
+        }
     }
     return $IsValid
 }
+
