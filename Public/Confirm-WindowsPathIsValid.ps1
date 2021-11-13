@@ -22,6 +22,12 @@
 .PARAMETER Extension
     Tests whether the path points to a file with the specified extension. Requires -Leaf to be specified.
 
+.PARAMETER UNC
+    Additionally validates whether the path is in UNC format.
+
+.PARAMETER Absolute
+    Additionally validates whether the path is absolute. 
+
 .NOTES
     Name: Confirm-WindowsPathIsValid
     Author: Visusys
@@ -49,7 +55,7 @@
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "\\SERVER-01\Shared1\WGroups\Log-1.txt" -Leaf
+    Confirm-WindowsPathIsValid -Path "\\SERVER-01\Shared1\WGroups\Log-1.txt" -Leaf -UNC
     True
 
 .EXAMPLE
@@ -60,17 +66,35 @@
     Confirm-WindowsPathIsValid -Path "..\..\bin\my_executable.exe" -Leaf
     True
 
+.EXAMPLE
+    Confirm-WindowsPathIsValid -Path "..\..\bin\my_executable.exe" -Leaf -Absolute
+    False
+
 .LINK
     https://github.com/visusys
 #>
 function Confirm-WindowsPathIsValid {
     param (
 
+        [Parameter(Mandatory, ParameterSetName = 'All')]
         [Parameter(Mandatory, ParameterSetName = 'Leaf')]
         [Parameter(Mandatory, ParameterSetName = 'Container')]
-        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [Parameter(Mandatory, ParameterSetName = 'UNC')]
+        [Parameter(Mandatory, ParameterSetName = 'Absolute')]
         [System.IO.FileInfo]
         $Path,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'Leaf')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Container')]
+        [Parameter(Mandatory, ParameterSetName = 'UNC')]
+        [switch]
+        $UNC,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'Leaf')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Container')]
+        [Parameter(Mandatory, ParameterSetName = 'Absolute')]
+        [switch]
+        $Absolute,
 
         [Parameter(Mandatory, ParameterSetName = 'Container')]
         [switch]
@@ -90,9 +114,12 @@ function Confirm-WindowsPathIsValid {
         return $false
     }
 
-    $ext        = [IO.Path]::GetExtension($Path)
-    $ext        = $ext.Replace('.','')
-    $Extension  = $Extension.Replace('.','')
+    $ext                = [IO.Path]::GetExtension($Path)
+    $ext                = $ext.Replace('.','')
+    $Extension          = $Extension.Replace('.','')
+    $PathInfo           = [System.Uri]$Path.FullName
+    $PathIsUNC          = $PathInfo.IsUnc
+    $PathIsAbsolute     = [IO.Path]::IsPathRooted($Path)
 
     if($Leaf){
         if($ext -eq ''){
@@ -109,6 +136,18 @@ function Confirm-WindowsPathIsValid {
             return $false
         }
     }
+
+    if($UNC){
+        if(!$PathIsUNC){
+            return $false
+        }
+    }
+
+    if($Absolute){
+        if(!$PathIsAbsolute){
+            return $false
+        }
+    }
+
     return $IsValid
 }
-
