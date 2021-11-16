@@ -110,6 +110,13 @@ function Confirm-WindowsPathIsValid {
     )
 
     $IsValid = $Path -match '^(?:(?:[a-z]:|\\\\[a-z0-9_.$●-]+\\[a-z0-9_.$●-]+)\\|\\?[^\\\/:*?"<>|\r\n]+\\?)(?:[^\\\/:*?"<>|\r\n]+\\)*[^\\\/:*?"<>|\r\n]*$'
+    
+    # (?:(?:[a-z]:|\\\\[a-z0-9_.$●-]+\\[a-z0-9_.$●-]+)\\|     # Drive
+    # \\?[^\\\/:*?"<>|\r\n]+\\?)                              # Relative path
+    # (?:[^\\\/:*?"<>|\r\n]+\\)*                              # Folder
+    # [^\\\/:*?"<>|\r\n]*                                     # File
+    
+    
     if(!$IsValid){
         return $false
     }

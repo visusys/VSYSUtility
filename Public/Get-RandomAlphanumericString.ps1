@@ -21,8 +21,18 @@
 Function Get-RandomAlphanumericString {
 	[CmdletBinding()]
 	Param (
-        [Parameter(Mandatory=$false, Position=0)] 
-        [Int32]$Length = 15
+        [Parameter(Mandatory=$false)] 
+        [Int32]$Length = 32,
+
+        [Parameter(Mandatory=$false)] 
+        [switch]$ToUpper
 	)
-    return ( -join ((0x30..0x39) + ( 0x41..0x5A) + ( 0x61..0x7A) | Get-Random -Count $Length  | ForEach-Object {[char]$_}) )
+
+    $str = ( -join ((0x30..0x39) + ( 0x41..0x5A) + ( 0x61..0x7A) | Get-Random -Count $Length  | ForEach-Object {[char]$_}) )
+    if($ToUpper){
+        $str = $str.ToUpper()
+        $str | Out-Host
+    }else{
+        return $str
+    }
 }
