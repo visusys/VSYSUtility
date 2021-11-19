@@ -73,8 +73,8 @@ function Get-CurrentScriptInfo {
         $All
     )
     
-    $FullPath               = $PSCommandPath
-    $Folder                 = Split-Path -Path $FullPath
+    $FullPath               = $PSCmdlet.MyInvocation.PSCommandPath
+    $Folder                 = $PSCmdlet.MyInvocation.PSScriptRoot
     $Name                   = Split-Path $FullPath -leaf
     $BaseName               = [System.IO.Path]::GetFileNameWithoutExtension($Name)
     $InvocationDir          = (Get-Location).Path
