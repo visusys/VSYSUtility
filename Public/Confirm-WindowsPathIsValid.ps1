@@ -151,7 +151,6 @@ function Confirm-WindowsPathIsValid {
         #File
         '[^\\\/:*?"<>|\r\n]*' +
         '$'
-
     $IsValid = ([regex]::Match($ToMatch, $RegEx, $RegexOptions)).Success
     if(!$IsValid){return $false}
 

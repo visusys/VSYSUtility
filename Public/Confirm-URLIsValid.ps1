@@ -74,7 +74,11 @@ function Confirm-URLIsValid {
         $Strict
     )
 
-    $s = (($Strict) ? "" : "?")
+    if($Strict){
+        $s = ""
+    }else{
+        $s = "?"
+    }
     $RegEx =
     "^" +
     # protocol identifier (optional)
