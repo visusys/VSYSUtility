@@ -84,65 +84,78 @@ function Confirm-ValidURL {
         $Strict
     )
 
-    if($Strict){
-        $s = ""
-    }else{
-        $s = "?"
-    }
-    $RegEx =
-    "^" +
-    # protocol identifier (optional)
-    # short syntax # still required
-    "(?:(?:(?:https?|ftp):)?\/\/)$s" +
-    # user:pass BasicAuth (optional)
-    "(?:\S+(?::\S*)?@)?" +
-    "(?:" +
-    # IP address exclusion
-    # private & local networks
-    "(?!(?:10|127)(?:\.\d{1,3}){3})" +
-    "(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})" +
-    "(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})" +
-    # IP address dotted notation octets
-    # excludes loopback network 0.0.0.0
-    # excludes reserved space >= 224.0.0.0
-    # excludes network & broadcast addresses
-    # (first & last IP address of each class)
-    "(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])" +
-    "(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}" +
-    "(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))" +
-    "|" +
-    # host & domain names, may end with dot
-    # can be replaced by a shortest alternative
-    # (?![-_])(?:[-\\w\`u{00a1}-\`u{ffff}]{0,63}[^-_]\\.)+
-    "(?:" +
+    begin {
+        if(!$Strict){
+            $s = '?'
+        }else{
+            $s = ''
+        }
+
+        $RegEx =
+        "^" +
+        # protocol identifier (optional)
+        # short syntax # still required
+        "(?:(?:(?:https?|ftp):)?\/\/)$s" +
+        # user:pass BasicAuth (optional)
+        "(?:\S+(?::\S*)?@)?" +
         "(?:" +
-        "[a-z0-9`u{00a1}-`u{ffff}]" +
-        "[a-z0-9`u{00a1}-`u{ffff}_-]{0,62}" +
-        ")?" +
-        "[a-z0-9`u{00a1}-`u{ffff}]\." +
-    ")+" +
-    # TLD identifier name, may end with dot
-    "(?:[a-z`u{00a1}-`u{ffff}]{2,}\.?)" +
-    ")" +
-    # port number (optional)
-    "(?::\d{2,5})?" +
-    # resource path (optional)
-    "(?:[/?#]\S*)?" +
-    "$"
-
-    $RegexOptions  = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
-    $URLCollection = [System.Collections.Generic.List[object]]@()
-
-    foreach($Address in $URL) {
-        $URLCollection.Add([PSCustomObject]@{
-            URL     = $Address;
-            Valid   = ([regex]::Match($Address, $RegEx, $RegexOptions)).Success;
-        })
+        # IP address exclusion
+        # private & local networks
+        "(?!(?:10|127)(?:\.\d{1,3}){3})" +
+        "(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})" +
+        "(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})" +
+        # IP address dotted notation octets
+        # excludes loopback network 0.0.0.0
+        # excludes reserved space >= 224.0.0.0
+        # excludes network & broadcast addresses
+        # (first & last IP address of each class)
+        "(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])" +
+        "(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}" +
+        "(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))" +
+        "|" +
+        # host & domain names, may end with dot
+        # can be replaced by a shortest alternative
+        # (?![-_])(?:[-\\w\`u{00a1}-\`u{ffff}]{0,63}[^-_]\\.)+
+        "(?:" +
+            "(?:" +
+            "[a-z0-9`u{00a1}-`u{ffff}]" +
+            "[a-z0-9`u{00a1}-`u{ffff}_-]{0,62}" +
+            ")?" +
+            "[a-z0-9`u{00a1}-`u{ffff}]\." +
+        ")+" +
+        # TLD identifier name, may end with dot
+        "(?:[a-z`u{00a1}-`u{ffff}]{2,}\.?)" +
+        ")" +
+        # port number (optional)
+        "(?::\d{2,5})?" +
+        # resource path (optional)
+        "(?:[/?#]\S*)?" +
+        "$"
     }
-    return $URLCollection
-}
 
-<# [string[]]$URLsNormal = @(
+    process {
+
+        $RegexOptions  = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
+        $URLCollection = [System.Collections.Generic.List[object]]@()
+
+        foreach($Address in $URL) {
+            $isValid = ([regex]::Match($Address, $RegEx, $RegexOptions)).Success;
+            $isValid = [System.Convert]::ToBoolean($isValid)
+
+            $URLCollection.Add([PSCustomObject]@{
+                URL     = $Address;
+                Valid   = $isValid
+            })
+        }
+    }
+
+    end{
+        return $URLCollection
+    }
+}
+<# 
+
+[string[]]$URLsNormal = @(
     "www.google.com"
     "github.com/PowerShell/PowerShell"
     "4sysops.com/archives/"
@@ -150,11 +163,8 @@ function Confirm-ValidURL {
     "http://userid:password@example.com"
     "http://www.regexbuddy.com"
 )
-#>
 
-#Confirm-ValidURL -URL 'www.google.com' -Strict
-
-<# [string[]]$URLsStrictPositive = @(
+[string[]]$URLsStrictPositive = @(
     "http://foo.com/blah_blah"
     "http://foo.com/blah_blah/"
     "http://foo.com/blah_blah_(wikipedia)"
@@ -248,4 +258,6 @@ function Confirm-ValidURL {
     "http://.www.foo.bar./"
     "http://10.1.1.1"
     "http://10.1.1.254"
-) #>
+)
+
+Confirm-ValidURL -URL $URLsStrictPositive -Strict #>

@@ -99,7 +99,8 @@ function Confirm-ValidEmail {
         }
 
         if($CurrentEmail.Valid){
-            $CurrentEmail.Valid = ([regex]::Match($Email, $RegExRFC5322, $RegexOptions)).Success
+            $re = ([regex]::Match($Email, $RegExRFC5322, $RegexOptions)).Success
+            $CurrentEmail.Valid = [System.Convert]::ToBoolean($re)
         }
 
         if($CurrentEmail.Valid){
@@ -119,8 +120,6 @@ function Confirm-ValidEmail {
     }
     return $EmailCollection
 }
-
-# Confirm-ValidEmail 'john@foobardoesntexist.net'
 
 <# 
 [string[]]$EmailsValid = @(
