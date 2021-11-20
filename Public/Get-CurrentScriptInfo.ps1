@@ -4,17 +4,20 @@
     Gets information about the currently running script. If no parameters 
     are supplied, the function simply returns the current script's path.
 
-.PARAMETER ScriptPath
+.PARAMETER Path
     Returns the fully qualified path of the script.
 
-.PARAMETER ScriptFolder
+.PARAMETER Folder
     Returns the folder that contains the currently running script.
 
-.PARAMETER ScriptName
+.PARAMETER Filename
     Returns the filename of the script.
 
-.PARAMETER ScriptBaseName
+.PARAMETER FilenameBase
     Returns the filename of the script without an extension.
+
+.PARAMETER InvocationDir
+    Returns the directory where the script was invoked from.
 
 .PARAMETER All
     Returns a PSCustomObject with all possible values.
@@ -22,19 +25,19 @@
 .NOTES
     Name: Get-CurrentScriptInfo
     Author: Visusys
-    Version: 1.0.0
+    Version: 1.0.1
     DateCreated: 2021-11-18
 
 .EXAMPLE
-    PS> Get-CurrentScriptInfo -ScriptPath
+    PS> Get-CurrentScriptInfo -Path
     D:\Dev\Powershell\Testing Scripts\Get-Something.ps1
 
 .EXAMPLE
-    PS> Get-CurrentScriptInfo -ScriptBaseName
+    PS> Get-CurrentScriptInfo -FilenameBase
     Get-Something
 
 .EXAMPLE
-    PS> Get-CurrentScriptInfo -ScriptFolder
+    PS> Get-CurrentScriptInfo -Folder
     D:\Dev\Powershell\Testing Scripts\
 
 .EXAMPLE
@@ -50,23 +53,23 @@ function Get-CurrentScriptInfo {
         
         [Parameter(Mandatory, ParameterSetName="Path")]
         [switch]
-        $ScriptPath,
+        $Path,
 
         [Parameter(Mandatory, ParameterSetName="Folder")]
         [switch]
-        $ScriptFolder,
+        $Folder,
 
         [Parameter(Mandatory, ParameterSetName="Name")]
         [switch]
-        $ScriptName,
+        $Filename,
 
         [Parameter(Mandatory, ParameterSetName="BaseName")]
         [switch]
-        $ScriptBaseName,
+        $FilenameBase,
 
         [Parameter(Mandatory, ParameterSetName="InvocationDir")]
         [switch]
-        $ScriptInvocationDir,
+        $InvocationDir,
 
         [Parameter(Mandatory, ParameterSetName="All")]
         [switch]
@@ -74,35 +77,35 @@ function Get-CurrentScriptInfo {
     )
     
     $FullPath               = $PSCmdlet.MyInvocation.PSCommandPath
-    $Folder                 = $PSCmdlet.MyInvocation.PSScriptRoot
+    $FullPathFolder         = $PSCmdlet.MyInvocation.PSScriptRoot
     $Name                   = Split-Path $FullPath -leaf
     $BaseName               = [System.IO.Path]::GetFileNameWithoutExtension($Name)
-    $InvocationDir          = (Get-Location).Path
+    $InvocDir               = (Get-Location).Path
 
 
     switch ($PSBoundParameters.Keys) {
-        ScriptPath {  
+        Path {  
             return $FullPath
         }
-        ScriptFolder {  
-            return $Folder
+        Folder {  
+            return $FullPathFolder
         }
-        ScriptName {  
+        Filename {  
             return $Name
         }
-        ScriptBaseName {  
+        FilenameBase {  
             return $BaseName
         }
-        ScriptInvocationDir {  
-            return $InvocationDir
+        InvocationDir {  
+            return $InvocDir
         }
         All {  
             $AllInfoObj = [PSCustomObject]@{
-                ScriptPath	        = $FullPath
-                ScriptFolder		= $Folder
-                ScriptName		    = $Name
-                ScriptBaseName      = $BaseName
-                ScriptInvocationDir = $InvocationDir
+                Path	        = $FullPath
+                Folder		    = $FullPathFolder
+                Filename		= $Name
+                FilenameBase    = $BaseName
+                InvocationDir   = $InvocDir
             }
             return $AllInfoObj
         }
@@ -110,5 +113,3 @@ function Get-CurrentScriptInfo {
 
     return $FullPath
 }
-
-#Get-CurrentScriptInfo -All
