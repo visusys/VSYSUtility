@@ -33,43 +33,43 @@
     Validates whether the path is relative. 
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "C:\Applications\Dev\"
+    Confirm-ValidWindowsPath -Path "C:\Applications\Dev\"
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "C:\Program Files\Notepad++" -Container
+    Confirm-ValidWindowsPath -Path "C:\Program Files\Notepad++" -Container
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "C:\Program Files\PowerShell\7\pwsh.exe" -Container
+    Confirm-ValidWindowsPath -Path "C:\Program Files\PowerShell\7\pwsh.exe" -Container
     False
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "C:\Music\Full Circle\Track01.mp3" -Leaf
+    Confirm-ValidWindowsPath -Path "C:\Music\Full Circle\Track01.mp3" -Leaf
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "\\192.168.0.1\SHARE\my folder\" -Container
+    Confirm-ValidWindowsPath -Path "\\192.168.0.1\SHARE\my folder\" -Container
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "\\SERVER-01\Shared1\WGroups\Log-1.txt" -Leaf -UNC
+    Confirm-ValidWindowsPath -Path "\\SERVER-01\Shared1\WGroups\Log-1.txt" -Leaf -UNC
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "C:\Program Files\7-Zip\7z.exe" -Leaf -Extension "exe"
+    Confirm-ValidWindowsPath -Path "C:\Program Files\7-Zip\7z.exe" -Leaf -Extension "exe"
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "..\..\bin\my_executable.exe" -Leaf
+    Confirm-ValidWindowsPath -Path "..\..\bin\my_executable.exe" -Leaf
     True
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path "..\..\bin\my_executable.exe" -Leaf -Absolute
+    Confirm-ValidWindowsPath -Path "..\..\bin\my_executable.exe" -Leaf -Absolute
     False
 
 .EXAMPLE
-    Confirm-WindowsPathIsValid -Path $ArrayOfPaths -Leaf -Absolute
+    Confirm-ValidWindowsPath -Path $ArrayOfPaths -Leaf -Absolute
     PSCustomObject will be returned with data for all paths in $ArrayOfPaths
 
 .INPUTS
@@ -81,7 +81,7 @@
     You can also include a description of the returned objects.
 
 .NOTES
-    Name: Confirm-WindowsPathIsValid
+    Name: Confirm-ValidWindowsPath
     Author: Visusys
     Release: 1.0.1
     License: MIT License
@@ -94,7 +94,7 @@
     https://github.com/visusys
 #>
 
-function Confirm-WindowsPathIsValid {
+function Confirm-ValidWindowsPath {
     param (
 
         [Parameter(Mandatory, ParameterSetName = 'All')]
@@ -224,4 +224,4 @@ function Confirm-WindowsPathIsValid {
     "C:\Music\Full Circle\Track01.mp3"
 )
 
-Confirm-WindowsPathIsValid -Path $DummyPathSet -Relative #>
+Confirm-ValidWindowsPath -Path $DummyPathSet -Relative #>

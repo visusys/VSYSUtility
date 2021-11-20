@@ -23,23 +23,23 @@
     When set, successful validation requres that the passed URL/s include a protocol. (http/https/ftp)
 
 .EXAMPLE
-    PS C:\> Confirm-URLIsValid -URL "www.bing.com"
+    PS C:\> Confirm-ValidURL -URL "www.bing.com"
     True
 
 .EXAMPLE
-    PS C:\> Confirm-URLIsValid -URL "www.google.com" -Strict
+    PS C:\> Confirm-ValidURL -URL "www.google.com" -Strict
     False
 
 .EXAMPLE
-    PS C:\> Confirm-URLIsValid -URL "https://docs.microsoft.com/en-us/powershell/" -Strict
+    PS C:\> Confirm-ValidURL -URL "https://docs.microsoft.com/en-us/powershell/" -Strict
     True
 
 .EXAMPLE
-    PS C:\> Confirm-URLIsValid -URL $ArrayOfURLs
+    PS C:\> Confirm-ValidURL -URL $ArrayOfURLs
     Returns an array of PSCustomObjects.
 
 .EXAMPLE
-    PS C:\> Confirm-URLIsValid -URL "http://कहानी.भारत" -Strict
+    PS C:\> Confirm-ValidURL -URL "http://कहानी.भारत" -Strict
     True
 
 .INPUTS
@@ -51,7 +51,7 @@
     System.Collections.Generic.List (PSCustomObjects). Each object in the list contains validation information.
 
 .NOTES
-    Name: Confirm-URLIsValid
+    Name: Confirm-ValidURL
     Author: Visusys
     Release: 1.0.0
     License: MIT License
@@ -61,7 +61,7 @@
     https://github.com/visusys
 
 #>
-function Confirm-URLIsValid {
+function Confirm-ValidURL {
 
     [CmdletBinding()]
     param (

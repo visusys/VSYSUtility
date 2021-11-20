@@ -32,7 +32,7 @@ function Invoke-WebURL {
     param (
         [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateScript({
-            if (!(Confirm-URLIsValid -URL $_)) {
+            if (!(Confirm-ValidURL -URL $_)) {
                 throw "Invalid URL specified."
             }
             $true
