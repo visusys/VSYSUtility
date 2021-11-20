@@ -73,22 +73,23 @@
     PSCustomObject will be returned with data for all paths in $ArrayOfPaths
 
 .INPUTS
-    The .NET types of objects that can be piped to the function or script. 
-    You can also include a description of the input objects.
+    A single path (string), or an array of path strings.
 
 .OUTPUTS
-    The .NET type of the objects that the cmdlet returns. 
-    You can also include a description of the returned objects.
+    A generic list containing a PSCustomObject with validation values.
 
 .NOTES
     Name: Confirm-ValidWindowsPath
     Author: Visusys
-    Release: 1.0.1
+    Release: 1.0.2
     License: MIT License
     DateCreated: 2021-11-18
 
 .LINK
-    Confirm-URLIsValid
+    Confirm-ValidEmail
+
+.LINK
+    Confirm-ValidURL
 
 .LINK
     https://github.com/visusys
@@ -151,8 +152,6 @@ function Confirm-ValidWindowsPath {
         #File
         '[^\\\/:*?"<>|\r\n]*' +
         '$'
-    $IsValid = ([regex]::Match($ToMatch, $RegEx, $RegexOptions)).Success
-    if(!$IsValid){return $false}
 
     function SwitchValidation {
         param (
@@ -168,52 +167,60 @@ function Confirm-ValidWindowsPath {
         $PathIsUNC          = $PathInfo.IsUnc
         $PathIsAbsolute     = [IO.Path]::IsPathRooted($Testpath)
 
-        $IValid = $true
+        #$ext | Out-Host
+
+
+        if(!(([regex]::Match($Testpath, $RegEx, $RegexOptions)).Success)){
+            Write-Verbose "01: RegEx Match"
+            return $false
+        }
 
         if($Leaf -and ($ext -eq '')){
-            $IValid = $false
+            Write-Verbose "02: Leaf Match"
+            return $false
         }
 
         if($Extension -and ($ext -ne $ExtensionArg)){
-            $IValid = $false
+            Write-Verbose "03: Extension Match"
+            return $false
         }
 
         if($Container -and ($ext -ne '')){
-            $IValid = $false
+            Write-Verbose "04: Folder Match"
+            return $false
         }
     
         if($UNC -and (!$PathIsUNC)){
-            $IValid = $false
+            Write-Verbose "05: UNC Match"
+            return $false
         }
     
         if($Absolute -and (!$PathIsAbsolute)){
-            $IValid = $false
+            Write-Verbose "06: Absolute Match"
+            return $false
         }
 
         if($Relative -and $PathIsAbsolute){
-            $IValid = $false
+            Write-Verbose "07: Relative Match"
+            return $false
         }
 
-        return $IValid
+        return $true
     }
-    
+
     $PathCollection = [System.Collections.Generic.List[object]]@()
-    if($Path.Count -gt 1){
-        foreach($p in $Path) {
-            $PathCollection.Add([PSCustomObject]@{
-                Path     = $p;
-                Valid    = (SwitchValidation -Testpath $p)
-            })
-        }
-        return $PathCollection
-    }elseif ($Path.Count -eq 1) {
-        $SingleValid = SwitchValidation -Testpath $Path[0]
-        return $SingleValid
-    }else{
-        throw [System.Management.Automation.ApplicationFailedException] "This error should never occur."
+    foreach($p in $Path) {
+        $PathCollection.Add([PSCustomObject]@{
+            Path     = $p;
+            Valid    = (SwitchValidation -Testpath $p)
+        })
     }
+    return $PathCollection
 }
-<# 
+
+#Confirm-ValidWindowsPath -Path 'C:\Windows'
+
+<#
 [string[]]$DummyPathSet = @(
     "D:\VMs\Win10Sandbox\caches\GuestAppsCache\appData\ef7705b372eb14a0de0ad44feb0a69c0.appinfo"
     "D:\ZBrush\Fibermesh\JHill Fibermesh Presets\"
@@ -222,6 +229,4 @@ function Confirm-ValidWindowsPath {
     "..\..\bin\my_executable.exe"
     "C:\Program Files\7-Zip\7z.exe"
     "C:\Music\Full Circle\Track01.mp3"
-)
-
-Confirm-ValidWindowsPath -Path $DummyPathSet -Relative #>
+) #>

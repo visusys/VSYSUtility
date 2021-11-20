@@ -6,9 +6,7 @@
     Determines whether a URL is valid and conforms to common URL syntax.
 
     If the -Strict switch is set, all URLS must define a protocol (http/https/ftp).
-    If a single string is passed, a boolean representing whether the URL is valid
-    or invalid is returned. If an array of strings is passed, the function returns
-    an array of PSCustomObjects with relevant data.
+    The function returns a generic list of PSCustomObjects with relevant data.
 
     Each PSCustom object has a 'URL' property (The URL passed), and a 'Valid'
     property (Whether the URL is valid).
@@ -47,26 +45,38 @@
     System.Array: An array of URLs to validate.
 
 .OUTPUTS
-    System.ValueType (Boolean): Whether the passed URL is valid.
-    System.Collections.Generic.List (PSCustomObjects). Each object in the list contains validation information.
+    System.Collections.Generic.List (PSCustomObjects). 
+    Each object in the list contains validation information.
 
 .NOTES
-    Name: Confirm-ValidURL
+    Name: SomeFunction
     Author: Visusys
-    Release: 1.0.0
+    Release: 1.0.1
     License: MIT License
-    DateCreated: 2021-11-17
+    DateCreated: 2021-11-20
 
 .LINK
     https://github.com/visusys
 
+.LINK
+    Confirm-ValidEmail
+
+.LINK
+    Confirm-ValidWindowsPath
+    
 #>
 function Confirm-ValidURL {
 
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory,Position = 0)]
-        [string[]]
+        [parameter(
+            Mandatory,
+            Position = 0, 
+            ValueFromPipelineByPropertyName, 
+            ValueFromPipeline
+        )]
+        [Alias("website","address", "location")]
+        [String[]]
         $URL,
 
         [Parameter(Mandatory=$false)]
@@ -120,22 +130,17 @@ function Confirm-ValidURL {
     "(?:[/?#]\S*)?" +
     "$"
 
-    $RegexOptions = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
+    $RegexOptions  = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
     $URLCollection = [System.Collections.Generic.List[object]]@()
-    if($URL.Count -gt 1){
-        foreach($Address in $URL) {
-            $URLCollection.Add([PSCustomObject]@{
-                URL     = $Address;
-                Valid   = ([regex]::Match($Address, $RegEx, $RegexOptions)).Success;
-            })
-        }
-        return $URLCollection
-    }else{
-        return ([regex]::Match($URL, $RegEx, $RegexOptions)).Success;
-    }
-}
 
-# Confirm-URLIsValid -URL $URLsNormal -Strict
+    foreach($Address in $URL) {
+        $URLCollection.Add([PSCustomObject]@{
+            URL     = $Address;
+            Valid   = ([regex]::Match($Address, $RegEx, $RegexOptions)).Success;
+        })
+    }
+    return $URLCollection
+}
 
 <# [string[]]$URLsNormal = @(
     "www.google.com"
@@ -145,8 +150,11 @@ function Confirm-ValidURL {
     "http://userid:password@example.com"
     "http://www.regexbuddy.com"
 )
+#>
 
-[string[]]$URLsStrictPositive = @(
+#Confirm-ValidURL -URL 'www.google.com' -Strict
+
+<# [string[]]$URLsStrictPositive = @(
     "http://foo.com/blah_blah"
     "http://foo.com/blah_blah/"
     "http://foo.com/blah_blah_(wikipedia)"
@@ -199,6 +207,7 @@ function Confirm-ValidURL {
     "http://www.regexbuddy.com/index.html?param=value#top"
     "http://www.regexbuddy.com/index.html?param=value&param2=value2"
 )
+
 [string[]]$URLsStrictNegative = @(
     "http://"
     "http://."
