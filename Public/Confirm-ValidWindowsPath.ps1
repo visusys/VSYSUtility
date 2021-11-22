@@ -97,7 +97,7 @@
 
 function Confirm-ValidWindowsPath {
     param (
-
+        #TODO: Support the pipeline
         [Parameter(Mandatory, ParameterSetName = 'All')]
         [Parameter(Mandatory, ParameterSetName = 'Leaf')]
         [Parameter(Mandatory, ParameterSetName = 'Container')]

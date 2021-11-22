@@ -34,10 +34,14 @@
 
 .EXAMPLE
     PS C:\> Confirm-ValidURL -URL $ArrayOfURLs
-    Returns an array of PSCustomObjects.
+    Returns a list of PSCustomObjects with validation results.
 
 .EXAMPLE
-    PS C:\> Confirm-ValidURL -URL "http://कहानी.भारत" -Strict
+    PS C:\> $ArrayOfURLs | Confirm-ValidURL | Where-Object Valid -eq $false
+    Returns objects where Validation failed.
+
+.EXAMPLE
+    PS C:\> "http://कहानी.भारत" | Confirm-ValidURL -Strict
     True
 
 .INPUTS
@@ -131,13 +135,13 @@ function Confirm-ValidURL {
         # resource path (optional)
         "(?:[/?#]\S*)?" +
         "$"
+        
+        $RegexOptions  = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
+        $URLCollection = [System.Collections.Generic.List[object]]@()
+    
     }
 
     process {
-
-        $RegexOptions  = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
-        $URLCollection = [System.Collections.Generic.List[object]]@()
-
         foreach($Address in $URL) {
             $isValid = ([regex]::Match($Address, $RegEx, $RegexOptions)).Success;
             $isValid = [System.Convert]::ToBoolean($isValid)
@@ -153,8 +157,8 @@ function Confirm-ValidURL {
         return $URLCollection
     }
 }
+ 
 <# 
-
 [string[]]$URLsNormal = @(
     "www.google.com"
     "github.com/PowerShell/PowerShell"
@@ -258,6 +262,8 @@ function Confirm-ValidURL {
     "http://.www.foo.bar./"
     "http://10.1.1.1"
     "http://10.1.1.254"
-)
+) #>
 
-Confirm-ValidURL -URL $URLsStrictPositive -Strict #>
+#"http://कहानी.भारत" | Confirm-ValidURL -Strict
+
+# Confirm-ValidURL -URL $URLsStrictPositive -Strict #>

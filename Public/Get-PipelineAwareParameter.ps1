@@ -22,6 +22,7 @@
     https://powershell.one/powershell-internals/scriptblocks/powershell-pipeline
 #>
 function Get-PipelineAwareParameter {
+    # TODO: Refactor so the results are displayed in an easy to read table.
     param
     (
         # Name of command to examine:
