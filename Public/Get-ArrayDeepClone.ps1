@@ -6,10 +6,10 @@
     The array to clone.
 
 .EXAMPLE
-    $NewArray = Copy-ArrayDeepClone -Array $MyArray
+    $NewArray = Get-ArrayDeepClone -Array $MyArray
 
 .NOTES
-    Name: Copy-ArrayDeepClone
+    Name: Get-ArrayDeepClone
     Author: Visusys
     Release: 1.0.0
     License: MIT License
@@ -19,7 +19,7 @@
     https://github.com/visusys
     
 #>
-function Copy-ArrayDeepClone {
+function Get-ArrayDeepClone {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory,Position = 0)]

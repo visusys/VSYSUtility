@@ -137,24 +137,20 @@ function Confirm-ValidURL {
         "$"
         
         $RegexOptions  = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
-        $URLCollection = [System.Collections.Generic.List[object]]@()
     
     }
 
     process {
         foreach($Address in $URL) {
+            $URIObject = [PSCustomObject][ordered]@{
+                URL	   = $Address
+                Valid  = $true
+            }
             $isValid = ([regex]::Match($Address, $RegEx, $RegexOptions)).Success;
             $isValid = [System.Convert]::ToBoolean($isValid)
-
-            $URLCollection.Add([PSCustomObject]@{
-                URL     = $Address;
-                Valid   = $isValid
-            })
+            $URIObject.Valid = $isValid
+            $URIObject
         }
-    }
-
-    end{
-        return $URLCollection
     }
 }
  
@@ -262,8 +258,7 @@ function Confirm-ValidURL {
     "http://.www.foo.bar./"
     "http://10.1.1.1"
     "http://10.1.1.254"
-) #>
+)
 
-#"http://कहानी.भारत" | Confirm-ValidURL -Strict
 
-# Confirm-ValidURL -URL $URLsStrictPositive -Strict #>
+Confirm-ValidURL -URL $URLsStrictNegative -Strict #>

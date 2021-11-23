@@ -64,65 +64,64 @@ function Confirm-ValidEmail {
     [CmdletBinding()]
     
     param(
-        [Parameter(Mandatory,Position = 0)]
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [Alias("email")]
         [string[]]$Address,
 
         [Parameter(Mandatory=$false)]
         [Alias("mx")]
         [Switch]
-        $MXLookup       
+        $MXLookup
     )
 
-    # RFC 5322 Email Validation Expression
-    $RegExRFC5322 =     '(?im)(?:[a-z0-9!#$%&''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''*+/=?^_`{' + 
-                        '|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\' + 
-                        '[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]' + 
-                        '(?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}' +
-                        '(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:' + 
-                        '(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'
+    begin {
+        # RFC 5322 Email Validation Expression
+        $RegExRFC5322 =     '(?im)(?:[a-z0-9!#$%&''*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&''*+/=?^_`{' + 
+                            '|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\' + 
+                            '[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]' + 
+                            '(?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}' +
+                            '(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:' + 
+                            '(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'
 
-    $RegexOptions     = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
-    $EmailCollection  = [System.Collections.Generic.List[object]]@()
-    
-    foreach($Email in $Address) {
-        $CurrentEmail = [PSCustomObject]@{
-            Address   = $Email
-            Valid     = $true
-            Host      = "Untested"
-        }
-        try {
-            $AddressObj = [MailAddress]$Email
-        }
-        catch {
-            $CurrentEmail.Valid = $false
-        }
+        $RegexOptions = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
+    }
 
-        if($CurrentEmail.Valid){
-            $re = ([regex]::Match($Email, $RegExRFC5322, $RegexOptions)).Success
-            $CurrentEmail.Valid = [System.Convert]::ToBoolean($re)
-        }
-
-        if($CurrentEmail.Valid){
-            if($MXLookup){
-                try{
-                    $DNSServer = @('8.8.8.8','8.8.4.4')
-                    $DNSRecord = Resolve-DnsName -Name $AddressObj.Host -Type MX -Server $DNSServer -ErrorAction Stop
-                    $CurrentEmail.Host = $DNSRecord[0].Name
-                }
-                catch{
-                    $CurrentEmail.Host = 'Unreachable'
-                    $CurrentEmail.Valid = $false
+    process {
+        foreach($Email in $Address) {
+            $CurrentEmail = [PSCustomObject]@{
+                Address   = $Email
+                Valid     = $true
+                Host      = "Untested"
+            }
+            try {
+                $AddressObj = [MailAddress]$Email
+            }
+            catch {
+                $CurrentEmail.Valid = $false
+            }
+            if($CurrentEmail.Valid){
+                $re = ([regex]::Match($Email, $RegExRFC5322, $RegexOptions)).Success
+                $CurrentEmail.Valid = [System.Convert]::ToBoolean($re)
+            }
+            if($CurrentEmail.Valid){
+                if($MXLookup){
+                    try{
+                        $DNSServer = @('8.8.8.8','8.8.4.4')
+                        $DNSRecord = Resolve-DnsName -Name $AddressObj.Host -Type MX -Server $DNSServer -ErrorAction Stop
+                        $CurrentEmail.Host = $DNSRecord[0].Name
+                    }
+                    catch{
+                        $CurrentEmail.Host = 'Unreachable'
+                        $CurrentEmail.Valid = $false
+                    }
                 }
             }
+            $CurrentEmail
         }
-        $EmailCollection.Add($CurrentEmail)
     }
-    return $EmailCollection
 }
 
-<# 
-[string[]]$EmailsValid = @(
+<# [string[]]$EmailsValid = @(
     'visusys@gmail.com'
     'first.last@iana.org',
     '"first\"last"@iana.org',
@@ -190,7 +189,7 @@ function Confirm-ValidEmail {
     'email@111.222.333.44444'
     'email@example..com'
     'Abc..123@example.com'
-) #>
+)
 
 
-
+Confirm-ValidEmail $EmailsValid -MXLookup #>
