@@ -30,8 +30,7 @@
     https://github.com/visusys
 #>
 function Test-IsSensitiveWindowsPath {
-
-	[CmdletBinding()]
+    [CmdletBinding()]
     Param(
         [Parameter(
             Mandatory,
@@ -39,125 +38,121 @@ function Test-IsSensitiveWindowsPath {
             ValueFromPipelineByPropertyName,
             Position = 0
         )]
-        [Alias('folder','directory','dir')]
+        [Alias('folder', 'directory', 'dir')]
         [String[]]$Path,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [Switch]
         $Strict
     )
 
-    # Convert to backslash and limit consecutives
-    $Path = $Path.Replace('/','\')
-    $Path = $Path -replace('\\+','\')
-    $Path = $Path.TrimEnd('\')
+    begin {
+        # Convert to backslash and limit consecutives
+        $Path = $Path.Replace('/', '\')
+        $Path = $Path -replace ('\\+', '\')
+        $Path = $Path.TrimEnd('\')
 
-    # Get OS drive
-    $OSDrive = ((Get-CimInstance -ClassName CIM_OperatingSystem).SystemDrive)
-    if(($OSDrive -eq "") -or ($OSDrive -eq " ") -or ($null -eq $OSDrive)){
-        throw [System.IO.DriveNotFoundException] "Could not determine the system drive."
-    }
+        # Get OS drive
+        $OSDrive = ((Get-CimInstance -ClassName CIM_OperatingSystem).SystemDrive)
+        if (($OSDrive -eq "") -or ($OSDrive -eq " ") -or ($null -eq $OSDrive)) {
+            throw [System.IO.DriveNotFoundException] "Could not determine the system drive."
+        }
 
-    $CriticalDirectories = @(
-        $($OSDrive + '\Windows'),
-        $($OSDrive + '\$WinREAgent')
-        $($OSDrive + '\Users\Default')
-    )
+        $CriticalDirectories = @(
+            $($OSDrive + '\Windows'),
+            $($OSDrive + '\$WinREAgent')
+            $($OSDrive + '\Users\Default')
+        )
 
-    $CriticalDirectoriesAnyDrive = @(
-        'System Volume Information',
-        '$RECYCLE.BIN'
-    )
+        $CriticalDirectoriesAnyDrive = @(
+            'System Volume Information',
+            '$RECYCLE.BIN'
+        )
 
-    $PossiblyUnwantedDirectories = @(     
-        $($OSDrive + '\Users'),
-        $($OSDrive + '\Users\' + $env:UserName),
-        $($OSDrive + '\Users\' + $env:UserName + '\AppData'),
-        $($OSDrive + '\Users\' + $env:UserName + '\AppData\LocalLow'),
-        $($OSDrive + '\Users\' + $env:UserName + '\AppData\Roaming'),
-        $($OSDrive + '\ProgramData'),
-        $($OSDrive + '\Program Files (x86)'),
-        $($OSDrive + '\Program Files')
-        
-    )
-
-    #Initialize
-    $ValidationList = [System.Collections.Generic.List[object]]@()
-
-    foreach ($iPath in $Path) {
-        $ValidationObject  = [PSCustomObject][ordered]@{
-            Path           = ''
-            IsSensitive	   = $false
-            Reason		   = "Path is not sensitive."
+        $PossiblyUnwantedDirectories = @(     
+            $($OSDrive + '\Users'),
+            $($OSDrive + '\Users\' + $env:UserName),
+            $($OSDrive + '\Users\' + $env:UserName + '\AppData'),
+            $($OSDrive + '\Users\' + $env:UserName + '\AppData\LocalLow'),
+            $($OSDrive + '\Users\' + $env:UserName + '\AppData\Roaming'),
+            $($OSDrive + '\ProgramData'),
+            $($OSDrive + '\Program Files (x86)'),
+            $($OSDrive + '\Program Files')
             
-        }
-
-        # Begin Critical Checks
-        foreach ($CriticalDir in $CriticalDirectories){
-            if($iPath -eq $CriticalDir){
-                $ValidationObject.Reason = "Path is a system critical directory."
-                $ValidationObject.IsSensitive = $true
-                $ValidationObject.Path = $iPath
-                $ValidationList.Add($ValidationObject)
-                break
-            }
-            if($iPath -like "$CriticalDir*"){
-                $ValidationObject.Reason = "Path is within a system critical directory."
-                $ValidationObject.IsSensitive = $true
-                $ValidationObject.Path = $iPath
-                $ValidationList.Add($ValidationObject)
-                break
-            }
-        }
-        if(!($ValidationObject.IsSensitive)){
-            foreach ($CriticalDir in $CriticalDirectoriesAnyDrive) {
-                $Escaped = [Regex]::Escape($CriticalDir)
-                $RegexOptions = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
-                $RegEx = "^[a-zA-Z]:\\$Escaped" #TODO: Improve this regex. Support UNC.
-                $Matched = ([regex]::Match($iPath, $RegEx, $RegexOptions)).Success
-                $Matched = [System.Convert]::ToBoolean($Matched)
-
-                if($Matched){
-                    $ValidationObject.Reason = "Path is within a system critical directory. (System Volume Information or `$RECYCLE.BIN)"
-                    $ValidationObject.IsSensitive = $true
-                    $ValidationObject.Path = $iPath
-                    $ValidationList.Add($ValidationObject)
-                    break
-                }
-            }
-        }
-        # End Critical Checks
-        # Begin Strict Checks
-        if($Strict){
-            if(!($ValidationObject.IsSensitive)){
-                if(($iPath -match '^[a-zA-Z]:\\$') -or ($iPath -match '^[a-zA-Z]:$')){
-                    $ValidationObject.Reason = "Strict: Path is the root of a drive."
-                    $ValidationObject.IsSensitive = $true
-                    $ValidationObject.Path = $iPath
-                    $ValidationList.Add($ValidationObject)
-                }
-            }
-            foreach ($UnwantedDir in $PossiblyUnwantedDirectories) {
-                if($iPath -eq $UnwantedDir){
-                    $ValidationObject.Reason = "Strict: Path is a possibly unwanted directory: $UnwantedDir"
-                    $ValidationObject.IsSensitive = $true
-                    $ValidationObject.Path = $iPath
-                    $ValidationList.Add($ValidationObject)
-                    break
-                }
-            }
-        }
-        # End Strict Checks
-        if(!($ValidationObject.IsSensitive)){
-            Write-Verbose "$Path is not a sensitive path."
-            $ValidationObject.Reason = "Path is not a sensitive directory."
-            $ValidationObject.IsSensitive = $false
-            $ValidationObject.Path = $iPath
-            $ValidationList.Add($ValidationObject)
-        }
-
+        )
     }
-    return $ValidationList
+
+    process {
+        foreach ($iPath in $Path) {
+            $ValidationObject = [PSCustomObject][ordered]@{
+                Path        = ''
+                IsSensitive = $false
+                Reason      = "Path is not sensitive."
+                
+            }
+            # Begin Critical Checks
+            foreach ($CriticalDir in $CriticalDirectories) {
+                if ($iPath -eq $CriticalDir) {
+                    $ValidationObject.Reason = "Path is a system critical directory."
+                    $ValidationObject.IsSensitive = $true
+                    $ValidationObject.Path = $iPath
+                    break
+                }
+                if ($iPath -like "$CriticalDir*") {
+                    $ValidationObject.Reason = "Path is within a system critical directory."
+                    $ValidationObject.IsSensitive = $true
+                    $ValidationObject.Path = $iPath
+                    break
+                }
+            }
+            if (!($ValidationObject.IsSensitive)) {
+                foreach ($CriticalDir in $CriticalDirectoriesAnyDrive) {
+                    $Escaped = [Regex]::Escape($CriticalDir)
+                    $RegexOptions = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
+                    $RegEx = "^[a-zA-Z]:\\$Escaped" #TODO: Improve this regex. Support UNC.
+                    $Matched = ([regex]::Match($iPath, $RegEx, $RegexOptions)).Success
+                    $Matched = [System.Convert]::ToBoolean($Matched)
+    
+                    if ($Matched) {
+                        $ValidationObject.Reason = "Path is within a system critical directory. (System Volume Information or `$RECYCLE.BIN)"
+                        $ValidationObject.IsSensitive = $true
+                        $ValidationObject.Path = $iPath
+                        break
+                    }
+                }
+            }
+            # End Critical Checks
+            # Begin Strict Checks
+            if ($Strict) {
+                if (!($ValidationObject.IsSensitive)) {
+                    if (($iPath -match '^[a-zA-Z]:\\$') -or ($iPath -match '^[a-zA-Z]:$')) {
+                        $ValidationObject.Reason = "Strict: Path is the root of a drive."
+                        $ValidationObject.IsSensitive = $true
+                        $ValidationObject.Path = $iPath
+                    }
+                }
+                foreach ($UnwantedDir in $PossiblyUnwantedDirectories) {
+                    if ($iPath -eq $UnwantedDir) {
+                        $ValidationObject.Reason = "Strict: Path is a possibly unwanted directory: $UnwantedDir"
+                        $ValidationObject.IsSensitive = $true
+                        $ValidationObject.Path = $iPath
+                        break
+                    }
+                }
+            }
+            # End Strict Checks
+            if (!($ValidationObject.IsSensitive)) {
+                Write-Verbose "$Path is not a sensitive path."
+                $ValidationObject.Reason = "Path is not a sensitive directory."
+                $ValidationObject.IsSensitive = $false
+                $ValidationObject.Path = $iPath
+            }
+    
+            $ValidationObject
+        }
+    }
+
+    
 }
  
 <# [string[]]$PathsToCheck = @(
@@ -172,4 +167,4 @@ function Test-IsSensitiveWindowsPath {
     'C:\Program Files (x86)\icofx3\icofx3.exe'
 )
 
-Test-IsSensitiveWindowsPath $PathsToCheck -Strict #>
+Test-IsSensitiveWindowsPath $PathsToCheck -Strict  #>
