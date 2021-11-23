@@ -6,13 +6,14 @@
     Determines whether a URL is valid and conforms to common URL syntax.
 
     If the -Strict switch is set, all URLS must define a protocol (http/https/ftp).
-    The function returns a generic list of PSCustomObjects with relevant data.
+    The function returns PSCustomObjects with relevant data.
 
-    Each PSCustom object has a 'URL' property (The URL passed), and a 'Valid'
+    The return object has a 'URL' property (The URL passed), and a 'Valid'
     property (Whether the URL is valid).
 
     The main validation RegEx contained within this file is a PowerShell
-    port of Diego Perini's original URL Validation RegEx: https://gist.github.com/dperini/729294
+    port of Diego Perini's original URL Validation RegEx: 
+    https://gist.github.com/dperini/729294
 
 .PARAMETER URL
     A single URL string or an array of URL strings.
@@ -34,7 +35,7 @@
 
 .EXAMPLE
     PS C:\> Confirm-ValidURL -URL $ArrayOfURLs
-    Returns a list of PSCustomObjects with validation results.
+    Returns objects with validation results.
 
 .EXAMPLE
     PS C:\> $ArrayOfURLs | Confirm-ValidURL | Where-Object Valid -eq $false
@@ -49,11 +50,10 @@
     System.Array: An array of URLs to validate.
 
 .OUTPUTS
-    System.Collections.Generic.List (PSCustomObjects). 
-    Each object in the list contains validation information.
+    PSCustomObject with validation information.
 
 .NOTES
-    Name: SomeFunction
+    Name: Confirm-ValidURL
     Author: Visusys
     Release: 1.0.1
     License: MIT License

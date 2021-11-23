@@ -33,14 +33,13 @@
 
 .EXAMPLE
     PS> Confirm-ValidEmail -Address $ListOfAddresses -MXLookup
-    Returns a generic list of multiple PSCustomObjects containing validation results.
 
 .INPUTS
     System.String: A single email address.
     System.Array typed as String: A list of email addresses.
 
 .OUTPUTS
-    A generic list of PSCustomObjects containing validation results.
+    A PSCustomObject or multiple PSCustomObjects containing validation results.
 
 .NOTES
     Name: Confirm-ValidEmail

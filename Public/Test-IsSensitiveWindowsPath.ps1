@@ -154,12 +154,13 @@ function Test-IsSensitiveWindowsPath {
 
     
 }
- 
-<# [string[]]$PathsToCheck = @(
+<#  
+[string[]]$PathsToCheck = @(
     'C:\',
     'C:\Windows\System32\'
     'C:\Windows\SysWOW64\'
     'C:\Users\Username\Desktop\'
+    'C:\Users\futur\Desktop\'
     'C:\ProgramData\'
     'C:\Program Files (x86)\Adobe'
     'C:\Program Files (x86)'
@@ -167,4 +168,4 @@ function Test-IsSensitiveWindowsPath {
     'C:\Program Files (x86)\icofx3\icofx3.exe'
 )
 
-Test-IsSensitiveWindowsPath $PathsToCheck -Strict  #>
+Test-IsSensitiveWindowsPath $PathsToCheck -Strict #>

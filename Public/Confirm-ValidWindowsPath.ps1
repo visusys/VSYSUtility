@@ -76,7 +76,7 @@
     A single path (string), or an array of path strings.
 
 .OUTPUTS
-    A generic list containing a PSCustomObject with validation values.
+    Objects with validation values.
 
 .NOTES
     Name: Confirm-ValidWindowsPath

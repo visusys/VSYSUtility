@@ -25,7 +25,7 @@ $FoundErrors = @(
                 Write-Warning "Processing $($Import.Name) LoaderExceptions: $($E.Message)"
             }
             $true
-            #Write-Error -Message "StackTrace: $($_.Exception.StackTrace)"
+            Write-Error -Message "StackTrace: $($_.Exception.StackTrace)"
         } catch {
             Write-Warning "Processing $($Import.Name) Exception: $($_.Exception.Message)"
             $LoaderExceptions = $($_.Exception.LoaderExceptions) | Sort-Object -Unique
@@ -33,7 +33,7 @@ $FoundErrors = @(
                 Write-Warning "Processing $($Import.Name) LoaderExceptions: $($E.Message)"
             }
             $true
-            #Write-Error -Message "StackTrace: $($_.Exception.StackTrace)"
+            Write-Error -Message "StackTrace: $($_.Exception.StackTrace)"
         }
     }
     #Dot source the files

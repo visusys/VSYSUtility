@@ -6,7 +6,7 @@
 .DESCRIPTION
     Determines whether a URL is valid.
 
-    Outputs a list of PSCustomObjects that have three properties:
+    Outputs objects that have three properties:
 
     URL:    The passed URL.
     Valid:  Whether the URL is valid.
@@ -17,15 +17,15 @@
 
 .EXAMPLE
     PS C:\> Confirm-ValidURLDotNET -URL "www.bing.com"
-    True (Inside returned list)
+    True
 
 .EXAMPLE
     PS C:\> Confirm-ValidURLDotNET -URL $ListOfURLs
-    Returns a .NET generic list of validation results.
+    Returns objects with validation results.
 
 .EXAMPLE
     PS C:\> 'www.google.com' | Confirm-ValidURLDotNET
-    True (Inside returned list)
+    True
 
 .EXAMPLE   
     PS C:\> $ListOfURLs | Confirm-ValidURLDotNET | Where-Object Valid -eq $false
@@ -37,8 +37,7 @@
     The URL property Accepts pipeline input.
 
 .OUTPUTS
-    System.Collections.Generic.List containing PSCustomObjects. 
-    Each object in the list contains validation information.
+    Object containing validation information.
 
 .NOTES
     Name: Confirm-ValidURLDotNET
