@@ -41,6 +41,8 @@ $FoundErrors = @(
         Try {
             . $Import.Fullname
         } Catch {
+            Write-Warning -Message "Failed to import functions from $($Import.Fullname):" 
+            Write-Warning -Message $_
             Write-Error -Message "Failed to import functions from $($import.Fullname): $_"
             $true
         }
@@ -48,8 +50,8 @@ $FoundErrors = @(
 )
 
 if ($FoundErrors.Count -gt 0) {
-    # $ModuleName = (Get-ChildItem $PSScriptRoot\*.psd1).BaseName
-    Write-Warning "Importing module VSYSUtility failed. Fix errors before continuing."
+    $ModuleName = (Get-ChildItem $PSScriptRoot\*.psm1).BaseName
+    Write-Warning "Importing module $ModuleName failed. Fix errors before continuing."
     break
 }
 

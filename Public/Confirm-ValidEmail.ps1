@@ -189,6 +189,6 @@ function Confirm-ValidEmail {
     'email@example..com'
     'Abc..123@example.com'
 )
+#>
 
-
-Confirm-ValidEmail $EmailsValid -MXLookup #>
+# Confirm-ValidEmail $EmailsValid -MXLookup
