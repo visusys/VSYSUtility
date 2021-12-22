@@ -52,7 +52,7 @@ function Copy-HashToClipboard {
     process {
         $FileHashList = [System.Collections.ArrayList]@()
         foreach ($File in $Files) {
-            $Hash = Get-FileHash -Path $File -Algorithm $Algorithm
+            $Hash = Get-FileHash -LiteralPath $File -Algorithm $Algorithm
             $FileHashList.Add($Hash.Hash)
         }
         $FileHashList | Set-Clipboard

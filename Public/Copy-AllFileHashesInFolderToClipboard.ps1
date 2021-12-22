@@ -32,14 +32,50 @@ function Copy-AllFileHashesInFolderToClipboard {
         [string]
         $Algorithm
     )
+    process {
+        
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.Clipboard]::Clear()
+    
+        $FolderContents = Get-ChildItem -LiteralPath $Folder
+        $HashResults = $FolderContents | Foreach-Object {
+            if(Test-Path -LiteralPath $_ -PathType Leaf){
+                [PSCustomObject][ordered]@{
+                    Algorithm  = $Algorithm
+                    Hash	   = (Get-FileHash -LiteralPath $_.FullName -Algorithm $Algorithm).Hash
+                    Path	   = $_.Name
+                }
+            }
+        }
+ 
+        if($HashResults[0].Algorithm -eq 'MD5'){
+            $col1 = -12
+            $col2 = -37
+        }else{
+            $col1 = -12
+            $col2 = -46
+        }
+        $i = $true
+        foreach ($HashItem in $HashResults) {
+            if($i){
+                $FormatString = ("{0,$col1}{1,$col2}{2}" -f @(
+                    "Algorithm"
+                    "Hash"
+                    "Path"
+                ))
+                $FormatString | Set-Clipboard
+                $i=$false
+            }else{
+                $FormatString = ("{0,$col1}{1,$col2}{2}" -f @(
+                    $HashItem.Algorithm
+                    $HashItem.Hash
+                    $HashItem.Path
+                ))
+                $FormatString | Set-Clipboard -Append
+            }
+        }
 
-    Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.Clipboard]::Clear()
-
-    $HashList = [System.Collections.Generic.List[System.String]]@()
-    $ParentFolder = Get-ChildItem $Folder
-    $ParentFolder | Foreach-Object {
-        $HashList.Add((Get-FileHash -Path $_.FullName -Algorithm $Algorithm).Hash)
+        $HashResults
     }
-    [System.Windows.Forms.Clipboard]::SetText(($HashList | Out-String))
+    
 }
