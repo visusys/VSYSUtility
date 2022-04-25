@@ -31,8 +31,8 @@ Function Get-RandomAlphanumericString {
     $str = ( -join ((0x30..0x39) + ( 0x41..0x5A) + ( 0x61..0x7A) | Get-Random -Count $Length  | ForEach-Object {[char]$_}) )
     if($ToUpper){
         $str = $str.ToUpper()
-        $str | Out-Host
+        $str
     }else{
-        return $str
+        $str
     }
 }

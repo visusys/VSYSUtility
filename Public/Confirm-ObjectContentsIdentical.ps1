@@ -17,11 +17,11 @@
     this switch as well.
 
 .EXAMPLE
-    Test-ObjectContentsAreIdentical -InputObject @("Test","TEsT","TEST","tesT")
+    Confirm-ObjectContentsIdentical -InputObject @("Test","TEsT","TEST","tesT")
     True
 
 .EXAMPLE
-    Test-ObjectContentsAreIdentical -InputObject @("Test","TEsT","TEST","tesT") -CaseSensitive
+    Confirm-ObjectContentsIdentical -InputObject @("Test","TEsT","TEST","tesT") -CaseSensitive
     False
 
 .EXAMPLE
@@ -29,7 +29,7 @@
     $GenericList.Add([PSCustomObject]@{UserID = "307023"; Name = "Bob"; Email = "bobGrady@gmail.com"})
     $GenericList.Add([PSCustomObject]@{UserID = "307023"; Name = "Bob"; Email = "bobGrady@gmail.com"})
     $GenericList.Add([PSCustomObject]@{UserID = "307023"; Name = "Bob"; Email = "bobGrady@gmail.com"})
-    Test-ObjectContentsAreIdentical $GenericList
+    Confirm-ObjectContentsIdentical $GenericList
     True
 
 .INPUTS
@@ -44,7 +44,7 @@
     True if all object contents are identical.
 
 .NOTES
-    Name: Test-ObjectContentsAreIdentical
+    Name: Confirm-ObjectContentsIdentical
     Author: Visusys
     Release: 1.0.0
     License: MIT License
@@ -54,7 +54,7 @@
     https://github.com/visusys
     
 #>
-function Test-ObjectContentsAreIdentical {
+function Confirm-ObjectContentsIdentical {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, Position = 0)]
@@ -193,107 +193,3 @@ function Test-ObjectContentsAreIdentical {
         $IsTheSame
     }
 }
-
-<# [regex[]]$RegExList = @(
-    '^\S+@\S+\.\S+$',
-    '^\S+@\S+\.\S+$',
-    '^\S+@\S+\.\S+$'
-)
-
-Test-ObjectContentsAreIdentical $RegExList -Verbose #>
-
-
-<# $PSCustom1 = [PSCustomObject]@{
-    Username = 'VISUSYS'
-    Path     = 'C:\Users\VISUSYS'
-    Type     = 'Administrator'
-}
-$PSCustom2 = [PSCustomObject]@{
-    Username = 'VISUSYS'
-    Path     = 'C:\Users\VISUSYS'
-    Type     = 'Administrator'
-}
-$Another = [PSCustomObject]@{
-    Username = 'VISUSYS'
-    Path     = 'C:\Users\VISUSYS'
-    Type     = 'Administrator'
-}
-
-Test-ObjectContentsAreIdentical @($PSCustom1, $PSCustom2, $Another) # System.Management.Automation.PSCustomObject #>
-
-
-# Test-ObjectContentsAreIdentical @(2,2,2,2,2,2) -Verbose # System.Int32
-# Test-ObjectContentsAreIdentical @("Test","TEsT","TEST","tesT") -Verbose # System.String
-# Test-ObjectContentsAreIdentical @($false,$false,$false,$false) # System.Boolean
-
-
-
-<# $GenericList = [System.Collections.Generic.List[object]]@()
-$GenericList.Add([PSCustomObject]@{UserID = "307023"; Name = "Bob"; Email = "bobGrady@gmail.com"})
-$GenericList.Add([PSCustomObject]@{UserID = "307023"; Name = "Bob"; Email = "bobGrady@gmail.com"})
-$GenericList.Add([PSCustomObject]@{UserID = "307023"; Name = "Bob"; Email = "bobGrady@gmail.com"})
-Test-ObjectContentsAreIdentical $GenericList -Verbose #>
-
-
-# $CharObj = [char[]]([char]'a',[char]'a',[char]'a',[char]'a',[char]'a') # System.Char
-
-
-<# $GenericListHash = [System.Collections.Generic.List[object]]@()
-$GenericListHash.Add(@{UserID = "307023"; Name = "Jay"; Email = "jsalva@gmail.com"})
-$GenericListHash.Add(@{UserID = "307023"; Name = "Jay"; Email = "jsalva@gmail.com"})
-$GenericListHash.Add(@{UserID = "307023"; Name = "Jay"; Email = "jsalva@gmail.com"})
-Test-ObjectContentsAreIdentical $GenericListHash -Verbose #>
-
-<# [decimal[]]$DecimalArr = @(
-    1.2456,
-    1.2456,
-    1.2456
-)
-Test-ObjectContentsAreIdentical $DecimalArr -Verbose #>
-
-<# [sbyte[]]$DoubleArr = @(
-    25,
-    25,
-    25,
-    25,
-    25,
-    25
-)
-Test-ObjectContentsAreIdentical $DoubleArr -Verbose #>
-
-
-<# $xmlstuff1 = [xml]@("<settings>
-<process>test</process>
-<xmlDir>\\serv1\dev</xmlDir>
-<scanDir>\\serv1\dev</scanDir>
-<processedDir>\\serv1\dev\done</processedDir>
-<errorDir>\\serv1\dev\err</errorDir>
-<log>\\serv1\dev\log\dev-Log##DATE##.log</log>
-<retryDelay>5</retryDelay>
-<retryLimit>3</retryLimit>
-</settings>")
-
-$xmlstuff2 = [xml]@("<settings>
-<process>test</process>
-<xmlDir>\\serv1\dev</xmlDir>
-<scanDir>\\serv1\dev</scanDir>
-<processedDir>\\serv1\dev\done</processedDir>
-<errorDir>\\serv1\dev\err</errorDir>
-<log>\\serv1\dev\log\dev-Log##DATE##.log</log>
-<retryDelay>5</retryDelay>
-<retryLimit>3</retryLimit>
-</settings>")
-
-$xmlstuff3 = [xml]@("<settings>
-<process>test</process>
-<xmlDir>\\serv1\dev</xmlDir>
-<scanDir>\\serv1\dev</scanDir>
-<processedDir>\\serv1\dev\done</processedDir>
-<errorDir>\\serv1\dev\err</errorDir>
-<log>\\serv1\dev\log\dev-Log##DATE##.log</log>
-<retryDelay>5</retryDelay>
-<retryLimit>3</retryLimit>
-</settings>")
-
-$XMLList = @($xmlstuff1,$xmlstuff2,$xmlstuff3)
-Test-ObjectContentsAreIdentical $XMLList -Verbose #>

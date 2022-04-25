@@ -3,14 +3,14 @@ function Format-SortNumerical {
     Param(
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [System.Object[]]
-        $InputObject,
+        $Input,
         
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName)]
         [ValidateRange(2, 100)]
         [Byte]
         $MaximumDigitCount = 100,
         
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName)]
         [Switch]
         $Descending
     )
@@ -25,7 +25,7 @@ function Format-SortNumerical {
     }
     
     Process {
-        $InnerInputObject += $InputObject
+        $InnerInputObject += $Input
     }
 
     End {
